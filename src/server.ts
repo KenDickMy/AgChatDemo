@@ -1,11 +1,21 @@
 import express from 'express';
 import path from 'path';
+import rateLimit from 'express-rate-limit';
 import apiRouter from './routes/api';
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
+// ── Rate limiting ─────────────────────────────────────────────────────────────
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 120,            // max 120 requests per minute per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // ── Middleware ────────────────────────────────────────────────────────────────
+app.use(limiter);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
