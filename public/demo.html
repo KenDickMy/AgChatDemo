@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo Runner — AgChatDemo</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="brand">
+      <a href="/" style="color:inherit; text-decoration:none; display:flex; align-items:center; gap:.5rem;">
+        🌾 <strong>AgChatDemo</strong>
+      </a>
+      <span id="scenario-title-header">Loading…</span>
+    </div>
+    <div class="header-nav">
+      <button class="btn btn-ghost btn-sm" id="export-btn" title="Export demo guide as Markdown">
+        📄 Export Guide
+      </button>
+      <a href="/" class="btn btn-ghost btn-sm">← All Scenarios</a>
+    </div>
+  </header>
+
+  <!-- ── Loading ────────────────────────────────────────────────────────── -->
+  <div id="loading-screen" class="loading-screen" style="min-height:80vh;">
+    <div class="spinner"></div>
+    <p>Loading demo scenario…</p>
+  </div>
+
+  <!-- ── Error ──────────────────────────────────────────────────────────── -->
+  <div id="error-screen" class="error-screen" style="display:none; min-height:80vh;">
+    <div style="font-size:3rem;">⚠️</div>
+    <h2>Scenario Not Found</h2>
+    <p id="error-message">The requested demo scenario could not be loaded.</p>
+    <a href="/" class="btn btn-primary" style="margin-top:1rem;">← Back to Scenarios</a>
+  </div>
+
+  <!-- ── Demo Layout ────────────────────────────────────────────────────── -->
+  <div id="demo-app" style="display:none;">
+
+    <!-- Top bar -->
+    <div class="demo-topbar">
+      <div>
+        <h1 id="demo-scenario-name">Scenario</h1>
+        <div class="meta" id="demo-scenario-meta"></div>
+      </div>
+      <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" id="hook-btn">🎯 Opening Hook</button>
+        <button class="btn btn-gold btn-sm" id="export-top-btn">📄 Export Guide</button>
+      </div>
+    </div>
+
+    <div class="demo-layout">
+
+      <!-- ── Sidebar ──────────────────────────────────────────────────── -->
+      <aside class="demo-sidebar" aria-label="Demo navigation">
+
+        <!-- Step navigation -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-header" id="steps-header" role="button" tabindex="0" aria-expanded="true">
+            <span>📍 Demo Steps</span>
+            <span id="steps-toggle-icon">▾</span>
+          </div>
+          <div class="sidebar-section-body" id="steps-body">
+            <ul class="step-nav-list" id="step-nav-list" role="list" aria-label="Demo steps">
+              <!-- Populated by JS -->
+            </ul>
+          </div>
+        </div>
+
+        <!-- Artifacts -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-header" id="artifacts-header" role="button" tabindex="0" aria-expanded="true">
+            <span>📁 Sample Artifacts</span>
+            <span id="artifacts-toggle-icon">▾</span>
+          </div>
+          <div class="sidebar-section-body" id="artifacts-body">
+            <p style="font-size:.8rem; color:var(--text-muted); margin-bottom:.75rem;">
+              Realistic ag-retail data to ground the demo story.
+            </p>
+            <div id="artifact-list">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- About Copilot Chat -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-header" id="about-header" role="button" tabindex="0" aria-expanded="false">
+            <span>ℹ️ About This Demo</span>
+            <span id="about-toggle-icon">▸</span>
+          </div>
+          <div class="sidebar-section-body" id="about-body" style="display:none;">
+            <p style="font-size:.82rem; color:var(--text-muted); line-height:1.6;">
+              This demo uses <strong>Microsoft Copilot Chat</strong> — the AI assistant built into
+              Microsoft 365 apps including Outlook, Teams, Word, and Excel.
+            </p>
+            <p style="font-size:.82rem; color:var(--text-muted); margin-top:.5rem; line-height:1.6;">
+              Content in this guide is illustrative. Prompts are suggestions — real results
+              will vary based on your environment, data, and M365 license.
+            </p>
+            <p style="font-size:.82rem; color:var(--text-muted); margin-top:.5rem; line-height:1.6;">
+              <strong>Copilot Chat (free tier):</strong> web-grounded chat<br/>
+              <strong>Microsoft 365 Copilot:</strong> full work-data context
+            </p>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- ── Main Content ──────────────────────────────────────────────── -->
+      <main class="demo-main" id="demo-main" role="main">
+        <!-- Step content injected here by JS -->
+      </main>
+
+    </div>
+  </div>
+
+  <!-- ── Artifact Modal ─────────────────────────────────────────────────── -->
+  <div class="artifact-modal-overlay" id="artifact-modal" role="dialog" aria-modal="true" aria-labelledby="artifact-modal-title">
+    <div class="artifact-modal">
+      <div class="artifact-modal-header">
+        <h3 id="artifact-modal-title">Artifact</h3>
+        <button class="btn btn-ghost btn-sm" id="artifact-modal-close" aria-label="Close artifact">✕ Close</button>
+      </div>
+      <div class="artifact-modal-body">
+        <pre class="artifact-content" id="artifact-modal-content"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Toast ──────────────────────────────────────────────────────────── -->
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- ── Opening Hook Modal ────────────────────────────────────────────── -->
+  <div class="artifact-modal-overlay" id="hook-modal" role="dialog" aria-modal="true" aria-labelledby="hook-modal-title">
+    <div class="artifact-modal" style="max-width:560px;">
+      <div class="artifact-modal-header">
+        <h3 id="hook-modal-title">🎯 Opening Hook</h3>
+        <button class="btn btn-ghost btn-sm" id="hook-modal-close" aria-label="Close">✕ Close</button>
+      </div>
+      <div class="artifact-modal-body">
+        <p style="font-size:.95rem; line-height:1.7; color:var(--text); font-style:italic;" id="hook-modal-content"></p>
+        <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border);">
+          <p style="font-size:.82rem; color:var(--text-muted);">
+            💡 <strong>Tip:</strong> Say this before you touch the keyboard.
+            Set the business stakes first — then let Copilot Chat deliver.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/demo.js"></script>
+</body>
+</html>
